@@ -5,16 +5,7 @@ public class SimpleNetworkingTest {
 	public static void main(String[] args) {
 
 		new Thread(() -> new SimpleChatServer().go()).start();
-		/*
-		밑의 코드와 같음
-		new Thread(
-				new Runnable() {
-					public void run() {
-						new SimpleChatServer().go();
-					}
-				}
-		).start();
-		*/
+
 
 		try {
 			Thread.sleep(1000);
@@ -22,8 +13,8 @@ public class SimpleNetworkingTest {
 	 	}
 
 		new Thread(() -> new SimpleChatClient().go("TalkerA")).start();
-		//new Thread( () -> new SimpleChatClient().go("TalkerB")).start();
-		//new Thread( () -> new SimpleChatClient().go("TalkerC")).start();
+		new Thread( () -> new SimpleChatClient().go("TalkerB")).start();
+		new Thread( () -> new SimpleChatClient().go("TalkerC")).start();
 	}
 	
 }

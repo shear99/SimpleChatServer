@@ -16,7 +16,21 @@ public class SimpleChatGUI {
 	private JTextArea incoming;
 	private PrintWriter writer;
 	private BufferedReader	reader;
-	
+
+	public class IncomingReader implements Runnable{
+		public void run(){
+			System.out.println("ready to receive");
+			String message;
+			try {
+				while ((message = reader.readLine()) != null) {
+					incoming.append(message + "\n");
+				}
+			} catch (Exception ex){
+				ex.printStackTrace();
+			}
+		}
+	}
+
 
 	private String	name;
 	public SimpleChatGUI(Socket s, String n) {
@@ -24,18 +38,8 @@ public class SimpleChatGUI {
 		setUpNetworking(s);	//bufferedReader, writer 생성
 		go(name);
 
-		new Thread( () -> {
-			while (true) {
-				try {
-					String inmsg = reader.readLine();
-					incoming.append(inmsg + "\n");
-
-				} catch (Exception ex) {
-				}
-			}
-		}).start();
-
-		//
+		Thread t = new Thread(new IncomingReader());
+		t.start();
 	}
 
 	public void go(String name) {
@@ -70,12 +74,14 @@ public class SimpleChatGUI {
 		outgoing.requestFocus();
 	}
 
-	
+
 	private boolean setUpNetworking(Socket s) {
 		try {
+			Socket sock = s;
 			reader = new BufferedReader(new InputStreamReader(s.getInputStream()));
 			writer = new PrintWriter(s.getOutputStream());
 		} catch (IOException e) {
+			e.printStackTrace();
 			return  false;
 		}
 		return true;
@@ -84,7 +90,6 @@ public class SimpleChatGUI {
 	public class SendButtonListener implements ActionListener {
 		public void actionPerformed(ActionEvent ev) {
 			try {
-
 				writer.println(name + " : " + outgoing.getText());
 				writer.flush();
 			} catch (Exception ex) {
